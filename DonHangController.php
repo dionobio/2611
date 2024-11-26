@@ -8,24 +8,30 @@
         }
     // Hiển thị danh sách đơn hàng
     public function LichSuMuaHang()
-    {
-        if (isset($_SESSION['nguoidungs_client'])) {
-            $tai_khoan_id = $_SESSION['nguoidungs_client']['id'];
-            $orders = $this->model->getOrdersByUser($tai_khoan_id);
-    
-            // Thêm tên trạng thái và phương thức thanh toán
-            foreach ($orders as &$order) {
-                $order['ten_trang_thai'] = $this->model->getTrangThaiDonHang($order['trang_thai_id']);
-                $order['ten_phuong_thuc'] = $this->model->getPhuongThucThanhToan($order['phuong_thuc_thanh_toan_id']);
-            }
+{
+    if (isset($_SESSION['nguoidungs_client'])) {
+        $tai_khoan_id = $_SESSION['nguoidungs_client']['id'];
 
-            // Render view
-            require_once './views/donhang/danhsachdonhang.php';
-        } else {
-            header("Location: index.php?act=login");
-            exit();
+        // Lấy lại danh sách đơn hàng từ cơ sở dữ liệu mỗi lần truy cập trang
+        $orders = $this->model->getOrdersByUser($tai_khoan_id);
+
+        // Cập nhật lại session với danh sách đơn hàng mới
+        $_SESSION['orders'] = $orders;
+
+        // Thêm tên trạng thái và phương thức thanh toán
+        foreach (  $orders as &$order) {
+            $order['ten_trang_thai'] = $this->model->getTrangThaiDonHang($order['trang_thai_id']);
+            $order['ten_phuong_thuc'] = $this->model->getPhuongThucThanhToan($order['phuong_thuc_thanh_toan_id']);
         }
+
+        // Render view
+        require_once './views/donhang/danhsachdonhang.php';
+    } else {
+        header("Location: index.php?act=login");
+        exit();
     }
+}
+
 
 
     // Hiển thị chi tiết đơn hàng
